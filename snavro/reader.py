@@ -1,8 +1,8 @@
 """
 Core file reading functionality for Snavro.
 
-This module provides the main FileReader class and utility functions for reading
-Parquet and Avro files with automatic format detection.
+This module provides the main FileReader class and utility functions for
+reading Parquet and Avro files with automatic format detection.
 """
 
 import os
@@ -15,7 +15,8 @@ import fastavro
 
 class FileReader:
     """
-    A unified file reader for Parquet and Avro files with automatic format detection.
+    A unified file reader for Parquet and Avro files with automatic format
+    detection.
 
     Supports:
     - .parquet files
@@ -26,7 +27,7 @@ class FileReader:
     SUPPORTED_EXTENSIONS = {".parquet", ".avro"}
     SUPPORTED_PATTERNS = {".parquet.snappy"}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the FileReader."""
         pass
 
@@ -86,7 +87,7 @@ class FileReader:
 
         with open(file_path, "rb") as f:
             reader = fastavro.reader(f)
-            return [record for record in reader]
+            return [record for record in reader]  # type: ignore[misc]
 
     def read_file(
         self, file_path: Union[str, Path]
@@ -117,7 +118,9 @@ class FileReader:
         file_name = file_path.name.lower()
 
         # Handle Parquet files (including .snappy compressed)
-        if file_extension == ".parquet" or file_name.endswith(".parquet.snappy"):
+        if file_extension == ".parquet" or file_name.endswith(
+            ".parquet.snappy"
+        ):
             return self.read_parquet(file_path)
 
         # Handle Avro files
@@ -127,7 +130,9 @@ class FileReader:
         else:
             raise ValueError(f"Unsupported file format: {file_extension}")
 
-    def display_file_info(self, file_path: Union[str, Path], num_rows: int = 5) -> None:
+    def display_file_info(
+        self, file_path: Union[str, Path], num_rows: int = 5
+    ) -> None:
         """
         Read and display information about a file.
 
@@ -142,7 +147,12 @@ class FileReader:
             file_name = file_path.name.lower()
 
             # Handle Parquet files
-            if file_extension == ".parquet" or file_name.endswith(".parquet.snappy"):
+            if file_extension == ".parquet" or file_name.endswith(
+                ".parquet.snappy"
+            ):
+                # Type guard: ensure data is a DataFrame for Parquet files
+                if not isinstance(data, pd.DataFrame):
+                    raise ValueError("Expected DataFrame for Parquet file")
                 print(f"Reading Parquet file: {file_path}")
                 print("-" * 50)
 
@@ -152,17 +162,18 @@ class FileReader:
                 # Display columns in a nice format, 4 per line
                 cols = list(data.columns)
                 for i in range(0, len(cols), 4):
-                    row_cols = cols[i : i + 4]
+                    row_cols = cols[i:i + 4]
                     print(
                         "  "
                         + " | ".join(
-                            f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)
+                            f"{j+i+1:2d}. {col:<25}"
+                            for j, col in enumerate(row_cols)
                         )
                     )
 
                 print(f"\nFirst {num_rows} rows:")
 
-                # For wide tables, show a transposed view for better readability
+                # For wide tables, show a transposed view for readability
                 if len(data.columns) > 10:
                     print("(Showing transposed view for better readability)")
                     sample_data = data.head(num_rows)
@@ -173,7 +184,9 @@ class FileReader:
                             # Truncate long values
                             if pd.isna(value):
                                 display_value = "NaN"
-                            elif isinstance(value, str) and len(str(value)) > 50:
+                            elif (
+                                isinstance(value, str) and len(str(value)) > 50
+                            ):
                                 display_value = str(value)[:47] + "..."
                             else:
                                 display_value = str(value)
@@ -197,6 +210,9 @@ class FileReader:
 
             # Handle Avro files
             elif file_extension == ".avro":
+                # Type guard: ensure data is a list for Avro files
+                if not isinstance(data, list):
+                    raise ValueError("Expected list of records for Avro file")
                 print(f"Reading Avro file: {file_path}")
                 print("-" * 50)
 
@@ -212,7 +228,9 @@ class FileReader:
             print(f"Error reading file: {e}")
 
 
-def read_and_display_file(file_path: Union[str, Path], num_rows: int = 5) -> None:
+def read_and_display_file(
+    file_path: Union[str, Path], num_rows: int = 5
+) -> None:
     """
     Convenience function to read and display a file.
 

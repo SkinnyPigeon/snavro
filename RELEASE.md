@@ -1,114 +1,234 @@
 # Release Process
 
-This document describes how to create releases for the Snavro package.
+This project uses **git flow** for releases with automatic version management from git tags using `setuptools-scm`.
 
-## Automated Release Process
+## Git Flow Setup
 
-The package uses GitHub Actions to automatically publish to PyPI when a release is created. The workflow is triggered by creating a release tag.
+### Initial Setup
 
-## Prerequisites
+1. **Install git flow** (if not already installed):
+   ```bash
+   # macOS
+   brew install git-flow-avh
+   
+   # Ubuntu/Debian
+   sudo apt-get install git-flow
+   
+   # Windows
+   # Download from: https://github.com/petervanderdoes/gitflow-avh
+   ```
 
-1. **GitHub Secret**: Ensure `TWINE_TOKEN` is set in your repository secrets with your PyPI API token
-2. **Git Flow**: This process assumes you're using git flow for branch management
+2. **Initialize git flow** in your repository:
+   ```bash
+   git flow init
+   ```
+   
+   Use these branch names (defaults):
+   - Production releases: `main`
+   - Next release development: `develop`
+   - Feature branches: `feature/`
+   - Release branches: `release/`
+   - Hotfix branches: `hotfix/`
+   - Support branches: `support/`
 
-## Release Steps
+## Release Workflow
 
-### 1. Prepare Release Branch (Git Flow)
+### 1. Feature Development
 
 ```bash
-# Start a new release branch
-git flow release start v0.2.0
+# Start a new feature
+git flow feature start my-new-feature
 
-# Make any final changes, update CHANGELOG.md, etc.
-# The version in pyproject.toml will be automatically updated by the workflow
+# Work on your feature...
+git add .
+git commit -m "Add new feature"
 
-# Finish the release
-git flow release finish v0.2.0
+# Finish the feature (merges to develop)
+git flow feature finish my-new-feature
 ```
 
-### 2. Push Tags and Branches
+### 2. Preparing a Release
 
 ```bash
-# Push the main branch
+# Start a release branch (use semantic versioning)
+git flow release start 1.2.0
+
+# Make any final adjustments, update CHANGELOG.md
+git add .
+git commit -m "Prepare release 1.2.0"
+
+# Finish the release (merges to main and develop, creates tag)
+git flow release finish 1.2.0
+```
+
+### 3. Publishing the Release
+
+After finishing a git flow release:
+
+```bash
+# Push all branches and tags
 git push origin main
-
-# Push the develop branch
 git push origin develop
-
-# Push the tag
-git push origin v0.2.0
+git push origin --tags
 ```
 
-### 3. Create GitHub Release
+### 4. Create GitHub Release
 
-1. Go to your repository on GitHub
+1. Go to your GitHub repository
 2. Click "Releases" → "Create a new release"
-3. Choose the tag you just pushed (e.g., `v0.2.0`)
+3. Choose the tag that was just created (e.g., `1.2.0`)
 4. Fill in the release title and description
 5. Click "Publish release"
 
-### 4. Automated Workflow
+**This will automatically trigger the PyPI publication workflow!**
 
-Once you publish the release, the GitHub Actions workflow will:
+### 5. Hotfixes
 
-1. **Test**: Run tests across Python 3.8-3.12
-2. **Build**: Create wheel and source distributions
-3. **Publish**: Upload to PyPI using your `TWINE_TOKEN`
-
-## Manual Release (if needed)
-
-If you need to publish manually:
+For urgent fixes to production:
 
 ```bash
-# Clean previous builds
-rm -rf dist/ build/ *.egg-info/
+# Start a hotfix from main
+git flow hotfix start 1.2.1
 
-# Build the package
-python -m build
+# Fix the issue
+git add .
+git commit -m "Fix critical bug"
 
-# Check the package
-twine check dist/*
+# Finish the hotfix (merges to main and develop, creates tag)
+git flow hotfix finish 1.2.1
 
-# Upload to PyPI
-twine upload dist/*
+# Push everything
+git push origin main
+git push origin develop
+git push origin --tags
 ```
 
-## Version Numbering
+## Version Management
 
-Follow [Semantic Versioning](https://semver.org/):
+### Automatic Versioning
 
-- **MAJOR** version for incompatible API changes
-- **MINOR** version for backwards-compatible functionality additions
-- **PATCH** version for backwards-compatible bug fixes
+- **No manual version editing** in `pyproject.toml`
+- Version is automatically derived from git tags using `setuptools-scm`
+- The version follows this pattern:
+  - Tagged releases: `1.2.0`
+  - Development builds: `1.2.0.dev5+g1234567` (5 commits since tag, git hash 1234567)
 
-Examples:
-- `v0.1.0` - Initial release
-- `v0.1.1` - Bug fix
-- `v0.2.0` - New features
-- `v1.0.0` - Stable API
+### Version Scheme
 
-## Workflow Features
+We use **semantic versioning** (semver):
+- `MAJOR.MINOR.PATCH` (e.g., `1.2.0`)
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backward compatible)
+- **PATCH**: Bug fixes (backward compatible)
 
-- ✅ **Multi-Python Testing**: Tests on Python 3.8-3.12
-- ✅ **Code Quality**: Black formatting, flake8 linting, mypy type checking
-- ✅ **Automatic Versioning**: Updates `pyproject.toml` version from git tag
-- ✅ **Build Verification**: Checks package integrity before publishing
-- ✅ **Secure Publishing**: Uses PyPI API tokens
-- ✅ **Manual Trigger**: Can be triggered manually if needed
+### Checking Current Version
+
+```bash
+# Check version from git
+python -m setuptools_scm
+
+# Check installed package version
+python -c "import snavro; print(snavro.__version__)"
+```
+
+## CI/CD Pipeline
+
+### Automated Workflows
+
+1. **CI Pipeline** (`.github/workflows/ci.yml`):
+   - Runs on every push to `main` and `develop`
+   - Tests across Python 3.8-3.12
+   - Code quality checks (Black, flake8, mypy)
+
+2. **Release Pipeline** (`.github/workflows/publish.yml`):
+   - Triggers when a GitHub release is published
+   - Runs full test suite
+   - Builds package with version from git tag
+   - Publishes to PyPI automatically
+
+### Manual Testing Before Release
+
+```bash
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run all checks locally
+pytest tests/ -v
+black --check snavro/
+flake8 snavro/
+mypy snavro/
+
+# Build and check package
+python -m build
+twine check dist/*
+```
+
+## Branch Protection
+
+Recommended GitHub branch protection rules:
+
+### Main Branch
+- Require pull request reviews
+- Require status checks to pass
+- Require branches to be up to date
+- Include administrators
+
+### Develop Branch
+- Require status checks to pass
+- Require branches to be up to date
+
+## Example Release Cycle
+
+```bash
+# 1. Start working on features
+git checkout develop
+git flow feature start user-authentication
+# ... work on feature ...
+git flow feature finish user-authentication
+
+git flow feature start data-export
+# ... work on feature ...
+git flow feature finish data-export
+
+# 2. Prepare release
+git flow release start 1.3.0
+# Update CHANGELOG.md, final testing
+git add CHANGELOG.md
+git commit -m "Update changelog for 1.3.0"
+git flow release finish 1.3.0
+
+# 3. Push and create GitHub release
+git push origin main
+git push origin develop
+git push origin --tags
+
+# 4. Create GitHub release from tag 1.3.0
+# → This automatically publishes to PyPI!
+```
 
 ## Troubleshooting
 
-### Workflow Fails
-- Check the Actions tab in your GitHub repository
-- Ensure all tests pass locally before releasing
-- Verify `TWINE_TOKEN` is correctly set in repository secrets
+### Version Not Detected
+```bash
+# Ensure you have tags and full git history
+git fetch --tags --unshallow
 
-### Version Conflicts
-- Ensure the tag version doesn't already exist on PyPI
-- Use `git tag -d v0.x.x` to delete local tags if needed
-- Use `git push origin :refs/tags/v0.x.x` to delete remote tags
+# Check setuptools-scm can detect version
+python -m setuptools_scm
+```
 
-### PyPI Upload Issues
-- Verify your PyPI token has the correct permissions
-- Check that the package name isn't already taken
-- Ensure the version number is higher than the current PyPI version 
+### Failed PyPI Upload
+- Check that the tag follows semantic versioning
+- Ensure the version doesn't already exist on PyPI
+- Verify GitHub secrets are configured correctly
+
+### Git Flow Issues
+```bash
+# If git flow gets confused, you can manually merge:
+git checkout main
+git merge --no-ff release/1.2.0
+git tag 1.2.0
+git checkout develop
+git merge --no-ff release/1.2.0
+git branch -d release/1.2.0
+``` 

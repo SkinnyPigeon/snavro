@@ -50,7 +50,8 @@ def main() -> None:
 
         try:
             choice = input(
-                f"\nEnter file number (1-{len(supported_files)}) or file path: "
+                "\nEnter file number "
+                f"(1-{len(supported_files)}) or file path: "
             ).strip()
 
             if choice.isdigit():
@@ -70,7 +71,9 @@ def main() -> None:
                     )
                     return
 
-            num_rows_input = input("Number of rows to display (default 5): ").strip()
+            num_rows_input = input(
+                "Number of rows to display (default 5): "
+            ).strip()
             num_rows = int(num_rows_input) if num_rows_input.isdigit() else 5
 
             print()

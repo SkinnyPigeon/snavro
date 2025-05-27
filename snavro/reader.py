@@ -207,25 +207,26 @@ class FileReader:
                 print("-" * 50)
 
                 print(f"Total records: {len(data)}")
-                
+
                 if data:
                     # Get all unique fields from the first few records to handle schema evolution
                     all_fields = set()
-                    sample_records = data[:min(10, len(data))]
+                    sample_records = data[: min(10, len(data))]
                     for record in sample_records:
                         if isinstance(record, dict):
                             all_fields.update(record.keys())
-                    
+
                     fields = sorted(list(all_fields))
                     print(f"Fields ({len(fields)}):")
-                    
+
                     # Display fields in a nice format, 4 per line
                     for i in range(0, len(fields), 4):
                         row_fields = fields[i : i + 4]
                         print(
                             "  "
                             + " | ".join(
-                                f"{j+i+1:2d}. {field:<25}" for j, field in enumerate(row_fields)
+                                f"{j+i+1:2d}. {field:<25}"
+                                for j, field in enumerate(row_fields)
                             )
                         )
 
@@ -247,7 +248,7 @@ class FileReader:
                             print(f"  {field:<35}: {display_value}")
                     else:
                         print(f"  Non-dict record: {record}")
-                        
+
                 # If there's a 'msg' field, show its first value
                 if data and isinstance(data[0], dict) and "msg" in data[0]:
                     print("\nFirst 'msg' value:")

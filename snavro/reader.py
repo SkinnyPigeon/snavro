@@ -207,12 +207,51 @@ class FileReader:
                 print("-" * 50)
 
                 print(f"Total records: {len(data)}")
+                
+                if data:
+                    # Get all unique fields from the first few records to handle schema evolution
+                    all_fields = set()
+                    sample_records = data[:min(10, len(data))]
+                    for record in sample_records:
+                        if isinstance(record, dict):
+                            all_fields.update(record.keys())
+                    
+                    fields = sorted(list(all_fields))
+                    print(f"Fields ({len(fields)}):")
+                    
+                    # Display fields in a nice format, 4 per line
+                    for i in range(0, len(fields), 4):
+                        row_fields = fields[i : i + 4]
+                        print(
+                            "  "
+                            + " | ".join(
+                                f"{j+i+1:2d}. {field:<25}" for j, field in enumerate(row_fields)
+                            )
+                        )
+
                 print(f"\nFirst {min(num_rows, len(data))} records:")
+                print("(Showing transposed view for better readability)")
 
                 for i, record in enumerate(data[:num_rows]):
-                    print(f"Record {i + 1}:")
-                    print(record)
-                    print()
+                    print(f"\n--- Record {i+1} ---")
+                    if isinstance(record, dict):
+                        for field in sorted(record.keys()):
+                            value = record[field]
+                            # Truncate long values
+                            if value is None:
+                                display_value = "None"
+                            elif isinstance(value, str) and len(str(value)) > 50:
+                                display_value = str(value)[:47] + "..."
+                            else:
+                                display_value = str(value)
+                            print(f"  {field:<35}: {display_value}")
+                    else:
+                        print(f"  Non-dict record: {record}")
+                        
+                # If there's a 'msg' field, show its first value
+                if data and isinstance(data[0], dict) and "msg" in data[0]:
+                    print("\nFirst 'msg' value:")
+                    print(data[0]["msg"])
 
         except Exception as e:
             print(f"Error reading file: {e}")

@@ -1,9 +1,18 @@
 name: Publish to PyPI
 
 on:
+  push:
+    tags:
+      - '*'  # Trigger on any tag push (git flow creates tags)
   release:
-    types: [published]
+    types: [published]  # Also support GitHub releases
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      skip_pypi:
+        description: 'Skip PyPI upload (for testing)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   test:
@@ -60,7 +69,6 @@ jobs:
         pip install build twine setuptools-scm
     
     - name: Verify version from git tag
-      if: github.event_name == 'release'
       run: |
         TAG_NAME=${GITHUB_REF#refs/tags/}
         echo "Git tag: $TAG_NAME"
@@ -103,7 +111,7 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: github.event_name == 'push' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     environment: pypi
     permissions:
       id-token: write  # For trusted publishing
@@ -116,7 +124,15 @@ jobs:
         path: dist/
     
     - name: Publish to PyPI
+      if: inputs.skip_pypi != true
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.TWINE_TOKEN }}
-        verbose: true 
+        verbose: true
+    
+    - name: Skip PyPI upload (testing mode)
+      if: inputs.skip_pypi == true
+      run: |
+        echo "Skipping PyPI upload as requested"
+        echo "Built packages:"
+        ls -la dist/ 

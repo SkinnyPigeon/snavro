@@ -72,15 +72,19 @@ git push origin develop
 git push origin --tags
 ```
 
-### 4. Create GitHub Release
+**This will automatically trigger the PyPI publication workflow when the tag is pushed!**
+
+### 4. Optional: Create GitHub Release
+
+You can optionally create a GitHub release for better documentation:
 
 1. Go to your GitHub repository
 2. Click "Releases" → "Create a new release"
-3. Choose the tag that was just created (e.g., `1.2.0`)
+3. Choose the tag that was already created (e.g., `1.2.0`)
 4. Fill in the release title and description
 5. Click "Publish release"
 
-**This will automatically trigger the PyPI publication workflow!**
+Note: The PyPI publication already happened when you pushed the tag, so this is just for documentation.
 
 ### 5. Hotfixes
 
@@ -196,13 +200,13 @@ git add CHANGELOG.md
 git commit -m "Update changelog for 1.3.0"
 git flow release finish 1.3.0
 
-# 3. Push and create GitHub release
+# 3. Push everything (this triggers PyPI publication!)
 git push origin main
 git push origin develop
 git push origin --tags
 
-# 4. Create GitHub release from tag 1.3.0
-# → This automatically publishes to PyPI!
+# 4. Optionally create GitHub release for documentation
+# (PyPI publication already happened automatically)
 ```
 
 ## Troubleshooting

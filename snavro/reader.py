@@ -167,21 +167,20 @@ class FileReader:
                 print(f"\nFirst {num_rows} rows:")
 
                 # For wide tables, show a transposed view for readability
-                if len(data.columns) > 10:
-                    print("(Showing transposed view for better readability)")
-                    sample_data = data.head(num_rows)
-                    for i, (idx, row) in enumerate(sample_data.iterrows()):
-                        print(f"\n--- Row {i+1} ---")
-                        for col in data.columns:
-                            value = row[col]
-                            # Truncate long values
-                            if pd.isna(value):
-                                display_value = "NaN"
-                            elif isinstance(value, str) and len(str(value)) > 50:
-                                display_value = str(value)[:47] + "..."
-                            else:
-                                display_value = str(value)
-                            print(f"  {col:<35}: {display_value}")
+                print("(Showing transposed view for better readability)")
+                sample_data = data.head(num_rows)
+                for i, (_, row) in enumerate(sample_data.iterrows()):
+                    print(f"\n--- Row {i+1} ---")
+                    for col in data.columns:
+                        value = row[col]
+                        # Truncate long values
+                        if pd.isna(value):
+                            display_value = "NaN"
+                        elif isinstance(value, str) and len(str(value)) > 50:
+                            display_value = str(value)[:47] + "..."
+                        else:
+                            display_value = str(value)
+                        print(f"  {col:<35}: {display_value}")
                 else:
                     # For narrow tables, use normal display
                     with pd.option_context(

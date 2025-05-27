@@ -191,6 +191,32 @@ MIT License - see LICENSE file for details.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+### Development Setup
+
+```bash
+git clone https://github.com/SkinnyPigeon/snavro.git
+cd snavro
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+### Code Quality
+
+```bash
+black snavro/ tests/
+flake8 snavro/ tests/
+mypy snavro/
+```
+
+### Releases
+
+This project uses automated releases via GitHub Actions. See [RELEASE.md](RELEASE.md) for details.
+
 ## Changelog
 
 ### 0.1.0

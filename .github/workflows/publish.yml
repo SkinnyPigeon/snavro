@@ -55,6 +55,8 @@ jobs:
       with:
         # Fetch full history for setuptools-scm
         fetch-depth: 0
+        # Ensure we're on the exact tag for releases
+        ref: ${{ github.ref }}
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -68,15 +70,29 @@ jobs:
     
     - name: Verify version from git tag
       run: |
-        if [ "${{ github.event_name }}" == "push" ]; then
-          echo "Git flow release - Tag: ${GITHUB_REF#refs/tags/}"
-        elif [ "${{ github.event_name }}" == "release" ]; then
-          echo "GitHub release - Tag: ${GITHUB_REF#refs/tags/}"
-        else
-          echo "Manual run - using current git state"
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        echo "Git tag: $TAG_NAME"
+        
+        VERSION=$(python -m setuptools_scm)
+        echo "Detected version: $VERSION"
+        
+        # Check if this is a clean release version (no +dev or +g suffixes)
+        if [[ "$VERSION" =~ \+.*$ ]]; then
+          echo "ERROR: Development version detected ($VERSION)"
+          echo "PyPI only accepts clean release versions like '1.2.0'"
+          echo "This usually means there are commits after the tag."
+          echo "Expected version: $TAG_NAME"
+          exit 1
         fi
-        echo "Detected version:"
-        python -m setuptools_scm
+        
+        # Verify the version matches the tag
+        if [[ "$VERSION" != "$TAG_NAME" ]]; then
+          echo "WARNING: Version mismatch!"
+          echo "Tag: $TAG_NAME"
+          echo "Detected: $VERSION"
+        fi
+        
+        echo "✓ Clean release version: $VERSION"
     
     - name: Build package
       run: |
@@ -98,7 +114,7 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     environment: pypi
     permissions:
-      id-token: write  # For trusted publishing (optional)
+      id-token: write  # For trusted publishing
     
     steps:
     - name: Download build artifacts

@@ -46,6 +46,8 @@ jobs:
       with:
         # Fetch full history for setuptools-scm
         fetch-depth: 0
+        # Ensure we're on the exact tag for releases
+        ref: ${{ github.ref }}
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -60,8 +62,29 @@ jobs:
     - name: Verify version from git tag
       if: github.event_name == 'release'
       run: |
-        echo "Git tag: ${GITHUB_REF#refs/tags/}"
-        python -m setuptools_scm
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        echo "Git tag: $TAG_NAME"
+        
+        VERSION=$(python -m setuptools_scm)
+        echo "Detected version: $VERSION"
+        
+        # Check if this is a clean release version (no +dev or +g suffixes)
+        if [[ "$VERSION" =~ \+.*$ ]]; then
+          echo "ERROR: Development version detected ($VERSION)"
+          echo "PyPI only accepts clean release versions like '1.2.0'"
+          echo "This usually means there are commits after the tag."
+          echo "Expected version: $TAG_NAME"
+          exit 1
+        fi
+        
+        # Verify the version matches the tag
+        if [[ "$VERSION" != "$TAG_NAME" ]]; then
+          echo "WARNING: Version mismatch!"
+          echo "Tag: $TAG_NAME"
+          echo "Detected: $VERSION"
+        fi
+        
+        echo "✓ Clean release version: $VERSION"
     
     - name: Build package
       run: |
@@ -83,7 +106,7 @@ jobs:
     if: github.event_name == 'release'
     environment: pypi
     permissions:
-      id-token: write  # For trusted publishing (optional)
+      id-token: write  # For trusted publishing
     
     steps:
     - name: Download build artifacts

@@ -1,5 +1,9 @@
 # Snavro
 
+[![CI](https://github.com/SkinnyPigeon/snavro/actions/workflows/ci.yml/badge.svg)](https://github.com/SkinnyPigeon/snavro/actions/workflows/ci.yml)
+[![PyPI version](https://badge.fury.io/py/snavro.svg)](https://badge.fury.io/py/snavro)
+[![Python versions](https://img.shields.io/pypi/pyversions/snavro.svg)](https://pypi.org/project/snavro/)
+
 A unified file reader for Parquet and Avro files with automatic format detection.
 
 ## Features

@@ -147,15 +147,20 @@ class FileReader:
 
                 print(f"Shape: {data.shape}")
                 print(f"Columns ({len(data.columns)}):")
-                
+
                 # Display columns in a nice format, 4 per line
                 cols = list(data.columns)
                 for i in range(0, len(cols), 4):
-                    row_cols = cols[i:i+4]
-                    print("  " + " | ".join(f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)))
-                
+                    row_cols = cols[i : i + 4]
+                    print(
+                        "  "
+                        + " | ".join(
+                            f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)
+                        )
+                    )
+
                 print(f"\nFirst {num_rows} rows:")
-                
+
                 # For wide tables, show a transposed view for better readability
                 if len(data.columns) > 10:
                     print("(Showing transposed view for better readability)")
@@ -174,9 +179,14 @@ class FileReader:
                             print(f"  {col:<35}: {display_value}")
                 else:
                     # For narrow tables, use normal display
-                    with pd.option_context('display.max_columns', None,
-                                         'display.width', None,
-                                         'display.max_colwidth', 30):
+                    with pd.option_context(
+                        "display.max_columns",
+                        None,
+                        "display.width",
+                        None,
+                        "display.max_colwidth",
+                        30,
+                    ):
                         print(data.head(num_rows).to_string())
 
                 # If there's a 'msg' column, show its first value

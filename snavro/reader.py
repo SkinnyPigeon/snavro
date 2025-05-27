@@ -210,7 +210,7 @@ class FileReader:
 
                 if data:
                     # Get all unique fields from the first few records to handle schema evolution
-                    all_fields = set()
+                    all_fields: set[str] = set()
                     sample_records = data[: min(10, len(data))]
                     for record in sample_records:
                         if isinstance(record, dict):

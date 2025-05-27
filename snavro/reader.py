@@ -146,9 +146,38 @@ class FileReader:
                 print("-" * 50)
 
                 print(f"Shape: {data.shape}")
-                print(f"Columns: {list(data.columns)}")
-                print("\nFirst few rows:")
-                print(data.head(num_rows))
+                print(f"Columns ({len(data.columns)}):")
+                
+                # Display columns in a nice format, 4 per line
+                cols = list(data.columns)
+                for i in range(0, len(cols), 4):
+                    row_cols = cols[i:i+4]
+                    print("  " + " | ".join(f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)))
+                
+                print(f"\nFirst {num_rows} rows:")
+                
+                # For wide tables, show a transposed view for better readability
+                if len(data.columns) > 10:
+                    print("(Showing transposed view for better readability)")
+                    sample_data = data.head(num_rows)
+                    for i, (idx, row) in enumerate(sample_data.iterrows()):
+                        print(f"\n--- Row {i+1} ---")
+                        for col in data.columns:
+                            value = row[col]
+                            # Truncate long values
+                            if pd.isna(value):
+                                display_value = "NaN"
+                            elif isinstance(value, str) and len(str(value)) > 50:
+                                display_value = str(value)[:47] + "..."
+                            else:
+                                display_value = str(value)
+                            print(f"  {col:<35}: {display_value}")
+                else:
+                    # For narrow tables, use normal display
+                    with pd.option_context('display.max_columns', None,
+                                         'display.width', None,
+                                         'display.max_colwidth', 30):
+                        print(data.head(num_rows).to_string())
 
                 # If there's a 'msg' column, show its first value
                 if "msg" in data.columns:

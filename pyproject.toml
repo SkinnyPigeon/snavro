@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "snavro"
-version = "0.1.1"
+dynamic = ["version"]
 description = "A unified file reader for Parquet and Avro files with automatic format detection"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -40,8 +40,11 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "black>=23.0.0",
-    "flake8>=6.0.0",
     "mypy>=1.0.0",
+    "pandas-stubs>=2.0.0",
+    "setuptools-scm>=8.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
 ]
 
 [project.urls]
@@ -70,4 +73,8 @@ disallow_untyped_defs = true
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
-python_functions = ["test_*"] 
+python_functions = ["test_*"]
+
+[tool.setuptools_scm]
+write_to = "snavro/_version.py"
+version_scheme = "release-branch-semver" 

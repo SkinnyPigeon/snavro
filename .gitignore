@@ -169,4 +169,7 @@ cython_debug/
 *.parquet
 *.parquet.snappy
 *.avro
-data/ 
+data/
+
+# Auto-generated version file
+snavro/_version.py 

@@ -1,8 +1,8 @@
 """
 Core file reading functionality for Snavro.
 
-This module provides the main FileReader class and utility functions for reading
-Parquet and Avro files with automatic format detection.
+This module provides the main FileReader class and utility functions for
+reading Parquet and Avro files with automatic format detection.
 """
 
 import os
@@ -15,7 +15,8 @@ import fastavro
 
 class FileReader:
     """
-    A unified file reader for Parquet and Avro files with automatic format detection.
+    A unified file reader for Parquet and Avro files with automatic format
+    detection.
 
     Supports:
     - .parquet files
@@ -26,7 +27,7 @@ class FileReader:
     SUPPORTED_EXTENSIONS = {".parquet", ".avro"}
     SUPPORTED_PATTERNS = {".parquet.snappy"}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the FileReader."""
         pass
 
@@ -86,7 +87,7 @@ class FileReader:
 
         with open(file_path, "rb") as f:
             reader = fastavro.reader(f)
-            return [record for record in reader]
+            return [record for record in reader]  # type: ignore[misc]
 
     def read_file(
         self, file_path: Union[str, Path]
@@ -109,7 +110,8 @@ class FileReader:
 
         if not self.is_supported_file(file_path):
             raise ValueError(
-                f"Unsupported file format. Supported formats: {self.SUPPORTED_EXTENSIONS}, {self.SUPPORTED_PATTERNS}"
+                f"Unsupported file format. Supported formats: "
+                f"{self.SUPPORTED_EXTENSIONS}, {self.SUPPORTED_PATTERNS}"
             )
 
         file_extension = file_path.suffix.lower()
@@ -142,21 +144,29 @@ class FileReader:
 
             # Handle Parquet files
             if file_extension == ".parquet" or file_name.endswith(".parquet.snappy"):
+                # Type guard: ensure data is a DataFrame for Parquet files
+                if not isinstance(data, pd.DataFrame):
+                    raise ValueError("Expected DataFrame for Parquet file")
                 print(f"Reading Parquet file: {file_path}")
                 print("-" * 50)
 
                 print(f"Shape: {data.shape}")
                 print(f"Columns ({len(data.columns)}):")
-                
+
                 # Display columns in a nice format, 4 per line
                 cols = list(data.columns)
                 for i in range(0, len(cols), 4):
-                    row_cols = cols[i:i+4]
-                    print("  " + " | ".join(f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)))
-                
+                    row_cols = cols[i : i + 4]
+                    print(
+                        "  "
+                        + " | ".join(
+                            f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)
+                        )
+                    )
+
                 print(f"\nFirst {num_rows} rows:")
-                
-                # For wide tables, show a transposed view for better readability
+
+                # For wide tables, show a transposed view for readability
                 if len(data.columns) > 10:
                     print("(Showing transposed view for better readability)")
                     sample_data = data.head(num_rows)
@@ -174,18 +184,26 @@ class FileReader:
                             print(f"  {col:<35}: {display_value}")
                 else:
                     # For narrow tables, use normal display
-                    with pd.option_context('display.max_columns', None,
-                                         'display.width', None,
-                                         'display.max_colwidth', 30):
+                    with pd.option_context(
+                        "display.max_columns",
+                        None,
+                        "display.width",
+                        None,
+                        "display.max_colwidth",
+                        30,
+                    ):
                         print(data.head(num_rows).to_string())
 
                 # If there's a 'msg' column, show its first value
                 if "msg" in data.columns:
-                    print(f"\nFirst 'msg' value:")
+                    print("\nFirst 'msg' value:")
                     print(data["msg"].iloc[0])
 
             # Handle Avro files
             elif file_extension == ".avro":
+                # Type guard: ensure data is a list for Avro files
+                if not isinstance(data, list):
+                    raise ValueError("Expected list of records for Avro file")
                 print(f"Reading Avro file: {file_path}")
                 print("-" * 50)
 

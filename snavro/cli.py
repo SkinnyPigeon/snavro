@@ -20,9 +20,10 @@ def main() -> None:
         num_rows = int(sys.argv[2]) if len(sys.argv) > 2 else 5
 
         if not reader.is_supported_file(file_path):
-            print(f"Error: Unsupported file format.")
+            print("Error: Unsupported file format.")
             print(
-                f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, {reader.SUPPORTED_PATTERNS}"
+                f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, "
+                f"{reader.SUPPORTED_PATTERNS}"
             )
             sys.exit(1)
 
@@ -39,7 +40,8 @@ def main() -> None:
         if not supported_files:
             print("No supported files found in current directory.")
             print(
-                f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, {reader.SUPPORTED_PATTERNS}"
+                f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, "
+                f"{reader.SUPPORTED_PATTERNS}"
             )
             return
 
@@ -48,7 +50,7 @@ def main() -> None:
 
         try:
             choice = input(
-                f"\nEnter file number (1-{len(supported_files)}) or file path: "
+                "\nEnter file number " f"(1-{len(supported_files)}) or file path: "
             ).strip()
 
             if choice.isdigit():
@@ -61,9 +63,10 @@ def main() -> None:
             else:
                 file_path = choice
                 if not reader.is_supported_file(file_path):
-                    print(f"Error: Unsupported file format.")
+                    print("Error: Unsupported file format.")
                     print(
-                        f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, {reader.SUPPORTED_PATTERNS}"
+                        f"Supported formats: {reader.SUPPORTED_EXTENSIONS}, "
+                        f"{reader.SUPPORTED_PATTERNS}"
                     )
                     return
 

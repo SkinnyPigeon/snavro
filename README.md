@@ -1,5 +1,9 @@
 # Snavro
 
+[![CI](https://github.com/SkinnyPigeon/snavro/actions/workflows/ci.yml/badge.svg)](https://github.com/SkinnyPigeon/snavro/actions/workflows/ci.yml)
+[![PyPI version](https://badge.fury.io/py/snavro.svg)](https://badge.fury.io/py/snavro)
+[![Python versions](https://img.shields.io/pypi/pyversions/snavro.svg)](https://pypi.org/project/snavro/)
+
 A unified file reader for Parquet and Avro files with automatic format detection.
 
 ## Features
@@ -190,6 +194,32 @@ MIT License - see LICENSE file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Setup
+
+```bash
+git clone https://github.com/SkinnyPigeon/snavro.git
+cd snavro
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+### Code Quality
+
+```bash
+black snavro/ tests/
+flake8 snavro/ tests/
+mypy snavro/
+```
+
+### Releases
+
+This project uses automated releases via GitHub Actions. See [RELEASE.md](RELEASE.md) for details.
 
 ## Changelog
 

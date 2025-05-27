@@ -36,9 +36,7 @@ try:
 
     # Test getting supported files in current directory
     supported_files = get_supported_files()
-    print(
-        f"\n📂 Found {len(supported_files)} supported files in current directory:"
-    )
+    print(f"\n📂 Found {len(supported_files)} supported files in current directory:")
     for file in supported_files[:3]:  # Show first 3
         print(f"   - {file}")
     if len(supported_files) > 3:

@@ -118,9 +118,7 @@ class FileReader:
         file_name = file_path.name.lower()
 
         # Handle Parquet files (including .snappy compressed)
-        if file_extension == ".parquet" or file_name.endswith(
-            ".parquet.snappy"
-        ):
+        if file_extension == ".parquet" or file_name.endswith(".parquet.snappy"):
             return self.read_parquet(file_path)
 
         # Handle Avro files
@@ -130,9 +128,7 @@ class FileReader:
         else:
             raise ValueError(f"Unsupported file format: {file_extension}")
 
-    def display_file_info(
-        self, file_path: Union[str, Path], num_rows: int = 5
-    ) -> None:
+    def display_file_info(self, file_path: Union[str, Path], num_rows: int = 5) -> None:
         """
         Read and display information about a file.
 
@@ -147,9 +143,7 @@ class FileReader:
             file_name = file_path.name.lower()
 
             # Handle Parquet files
-            if file_extension == ".parquet" or file_name.endswith(
-                ".parquet.snappy"
-            ):
+            if file_extension == ".parquet" or file_name.endswith(".parquet.snappy"):
                 # Type guard: ensure data is a DataFrame for Parquet files
                 if not isinstance(data, pd.DataFrame):
                     raise ValueError("Expected DataFrame for Parquet file")
@@ -162,12 +156,11 @@ class FileReader:
                 # Display columns in a nice format, 4 per line
                 cols = list(data.columns)
                 for i in range(0, len(cols), 4):
-                    row_cols = cols[i:i + 4]
+                    row_cols = cols[i : i + 4]
                     print(
                         "  "
                         + " | ".join(
-                            f"{j+i+1:2d}. {col:<25}"
-                            for j, col in enumerate(row_cols)
+                            f"{j+i+1:2d}. {col:<25}" for j, col in enumerate(row_cols)
                         )
                     )
 
@@ -184,9 +177,7 @@ class FileReader:
                             # Truncate long values
                             if pd.isna(value):
                                 display_value = "NaN"
-                            elif (
-                                isinstance(value, str) and len(str(value)) > 50
-                            ):
+                            elif isinstance(value, str) and len(str(value)) > 50:
                                 display_value = str(value)[:47] + "..."
                             else:
                                 display_value = str(value)
@@ -228,9 +219,7 @@ class FileReader:
             print(f"Error reading file: {e}")
 
 
-def read_and_display_file(
-    file_path: Union[str, Path], num_rows: int = 5
-) -> None:
+def read_and_display_file(file_path: Union[str, Path], num_rows: int = 5) -> None:
     """
     Convenience function to read and display a file.
 

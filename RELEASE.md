@@ -138,7 +138,7 @@ python -c "import snavro; print(snavro.__version__)"
 1. **CI Pipeline** (`.github/workflows/ci.yml`):
    - Runs on every push to `main` and `develop`
    - Tests across Python 3.8-3.12
-   - Code quality checks (Black, flake8, mypy)
+   - Code quality checks (Black, mypy)
 
 2. **Release Pipeline** (`.github/workflows/publish.yml`):
    - Triggers when a GitHub release is published
@@ -154,8 +154,7 @@ pip install -e ".[dev]"
 
 # Run all checks locally
 pytest tests/ -v
-black --check snavro/
-flake8 snavro/
+black --check snavro/ tests/
 mypy snavro/
 
 # Build and check package

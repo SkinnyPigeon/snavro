@@ -109,7 +109,8 @@ class FileReader:
 
         if not self.is_supported_file(file_path):
             raise ValueError(
-                f"Unsupported file format. Supported formats: {self.SUPPORTED_EXTENSIONS}, {self.SUPPORTED_PATTERNS}"
+                f"Unsupported file format. Supported formats: "
+                f"{self.SUPPORTED_EXTENSIONS}, {self.SUPPORTED_PATTERNS}"
             )
 
         file_extension = file_path.suffix.lower()
@@ -191,7 +192,7 @@ class FileReader:
 
                 # If there's a 'msg' column, show its first value
                 if "msg" in data.columns:
-                    print(f"\nFirst 'msg' value:")
+                    print("\nFirst 'msg' value:")
                     print(data["msg"].iloc[0])
 
             # Handle Avro files

@@ -38,6 +38,7 @@ jobs:
         fail_ci_if_error: false
 
   lint:
+    needs: test
     runs-on: ubuntu-latest
     
     steps:
@@ -62,6 +63,7 @@ jobs:
         mypy snavro/
 
   build:
+    needs: test
     runs-on: ubuntu-latest
     
     steps:
